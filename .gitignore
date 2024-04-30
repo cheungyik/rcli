@@ -21,3 +21,6 @@ Cargo.lock
 # IDE files
 .idea
 .vscode
+
+# Output files
+output.json
