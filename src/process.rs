@@ -1,5 +1,8 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
+
+use crate::opts::OutputFormat;
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "PascalCase")]
@@ -13,27 +16,22 @@ pub struct Player {
     pub number: u8,
 }
 
-impl Player {
-    #[allow(unused)]
-    pub fn to_json(&self) -> Result<String> {
-        let json = serde_json::to_string(&self)?;
-        Ok(json)
-    }
-    #[allow(unused)]
-    pub fn from_json(json: &str) -> Result<Player> {
-        let player: Player = serde_json::from_str(json)?;
-        Ok(player)
-    }
-}
-
-pub fn process_csv(input: &str, output: &str) -> anyhow::Result<()> {
+pub fn process_csv(input: &str, output: &str, format: OutputFormat) -> Result<()> {
     let mut reader = csv::Reader::from_path(input)?;
     let mut ret = Vec::with_capacity(100);
-    for result in reader.deserialize() {
-        let record: Player = result?;
-        ret.push(record);
+    // headers 为可变引用，所以需要 clone 一份
+    let headers = reader.headers()?.clone();
+    // 通过 zip 方法将 headers迭代器 和 record迭代器 合并成一个元组迭代器然后转换为 Value 类型
+    for result in reader.records() {
+        let record = result?;
+        let json_value = headers.iter().zip(record.iter()).collect::<Value>();
+        ret.push(json_value);
     }
-    let json = serde_json::to_string_pretty(&ret)?;
-    std::fs::write(output, json)?;
+
+    let content = match format {
+        OutputFormat::Json => serde_json::to_string_pretty(&ret)?,
+        OutputFormat::Yaml => serde_yaml::to_string(&ret)?,
+    };
+    std::fs::write(output, content)?;
     Ok(())
 }
