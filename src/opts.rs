@@ -20,13 +20,9 @@ pub enum SubCommand {
         about = "Show CSV, or Convert CSV to ohre formats(Json, Yaml)"
     )]
     Csv(CsvOpts),
-}
 
-// 数据量小且在栈上分配的类型可以实现 Copy trait
-#[derive(Debug, Clone, Copy)]
-pub enum OutputFormat {
-    Json,
-    Yaml,
+    #[command(name = "genpass", about = "Generate a random password")]
+    GenPass(GenPassOpts),
 }
 
 #[derive(Debug, Parser)]
@@ -45,6 +41,31 @@ pub struct CsvOpts {
 
     #[arg(long, default_value_t = true)]
     pub header: bool,
+}
+
+#[derive(Debug, Parser)]
+pub struct GenPassOpts {
+    #[arg(short, long, default_value_t = 16)]
+    pub length: u8,
+
+    #[arg(long, default_value_t = true)]
+    pub uppercase: bool,
+
+    #[arg(long, default_value_t = true)]
+    pub lowercase: bool,
+
+    #[arg(long, default_value_t = true)]
+    pub number: bool,
+
+    #[arg(long, default_value_t = true)]
+    pub symbol: bool,
+}
+
+// 数据量小且在栈上分配的类型可以实现 Copy trait
+#[derive(Debug, Clone, Copy)]
+pub enum OutputFormat {
+    Json,
+    Yaml,
 }
 
 // 实现了From trait之后，可以使用Into trait将OutputFormat类型转换为&str类型
