@@ -1,5 +1,6 @@
 use anyhow::Result;
 use rand::seq::SliceRandom;
+use zxcvbn::zxcvbn;
 
 const UPPER: &[u8] = b"ABCDEFGHJKLMNPQRSTUVWXYZ";
 const LOWER: &[u8] = b"abcdefghijkmnopqrstuvwxyz";
@@ -14,11 +15,11 @@ pub fn process_genpass(
     symbol: bool,
 ) -> Result<()> {
     let mut rng = rand::thread_rng();
-    let mut pwd = Vec::new();
+    let mut password = Vec::new();
     let mut chars = Vec::new();
     if uppercase {
         chars.extend_from_slice(UPPER);
-        pwd.push(
+        password.push(
             *UPPER
                 .choose(&mut rng)
                 .expect("UPPER won't be empty in this context"),
@@ -26,7 +27,7 @@ pub fn process_genpass(
     }
     if lowercase {
         chars.extend_from_slice(LOWER);
-        pwd.push(
+        password.push(
             *LOWER
                 .choose(&mut rng)
                 .expect("LOWER won't be empty in this context"),
@@ -34,7 +35,7 @@ pub fn process_genpass(
     }
     if number {
         chars.extend_from_slice(NUMBER);
-        pwd.push(
+        password.push(
             *NUMBER
                 .choose(&mut rng)
                 .expect("NUMBER won't be empty in this context"),
@@ -42,20 +43,25 @@ pub fn process_genpass(
     }
     if symbol {
         chars.extend_from_slice(SYMBOL);
-        pwd.push(
+        password.push(
             *SYMBOL
                 .choose(&mut rng)
                 .expect("SYMBOL won't be empty in this context"),
         );
     }
-    for _ in 0..(length - pwd.len() as u8) {
+    for _ in 0..(length - password.len() as u8) {
         let c = chars
             .choose(&mut rng)
             .expect("chars won't be empty in this context");
-        pwd.push(*c);
+        password.push(*c);
     }
 
-    pwd.shuffle(&mut rng);
-    println!("{}", String::from_utf8(pwd)?);
+    password.shuffle(&mut rng);
+    let password = String::from_utf8(password)?;
+    println!("{}", password);
+
+    let estimate = zxcvbn(&password, &[])?;
+    eprintln!("Password strength: {}", estimate.score());
+
     Ok(())
 }
