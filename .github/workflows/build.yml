@@ -60,4 +60,4 @@ jobs:
           git config --local user.name "蜂蜜実験室"
           git add CHANGELOG.md
           git commit -m "Update CHANGELOG.md"
-          git push
+          git push origin HEAD:refs/heads/main
