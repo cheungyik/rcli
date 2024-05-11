@@ -1,14 +1,12 @@
-use std::fs::File;
-
 use anyhow::{Ok, Result};
 use base64::{
     engine::general_purpose::{STANDARD, URL_SAFE_NO_PAD},
     Engine as _,
 };
 
-use crate::cli::Base64Format;
+use crate::{get_reader, Base64Format};
 
-pub fn process_encode(input: &str, format: Base64Format) -> Result<()> {
+pub fn process_encode(input: &str, format: Base64Format) -> Result<String> {
     let mut reader = get_reader(input)?;
     let mut buffer = Vec::new();
     reader.read_to_end(&mut buffer)?;
@@ -17,12 +15,11 @@ pub fn process_encode(input: &str, format: Base64Format) -> Result<()> {
         Base64Format::Standard => STANDARD.encode(buffer),
         Base64Format::UrlSafe => URL_SAFE_NO_PAD.encode(buffer),
     };
-    println!("{}", encoded);
 
-    Ok(())
+    Ok(encoded)
 }
 
-pub fn process_decode(input: &str, format: Base64Format) -> Result<()> {
+pub fn process_decode(input: &str, format: Base64Format) -> Result<Vec<u8>> {
     let mut reader = get_reader(input)?;
     let mut buffer = String::new();
     reader.read_to_string(&mut buffer)?;
@@ -32,20 +29,8 @@ pub fn process_decode(input: &str, format: Base64Format) -> Result<()> {
         Base64Format::Standard => STANDARD.decode(buffer)?,
         Base64Format::UrlSafe => URL_SAFE_NO_PAD.decode(buffer)?,
     };
-    let decoded = String::from_utf8(decoded)?;
-    println!("{}", decoded);
 
-    Ok(())
-}
-
-fn get_reader(input: &str) -> Result<Box<dyn std::io::Read>> {
-    // 动态分发
-    let reader: Box<dyn std::io::Read> = if input == "-" {
-        Box::new(std::io::stdin()) // windows下Ctrl+Z表示EOF，Linux下按Ctrl+D表示EOF
-    } else {
-        Box::new(File::open(input)?)
-    };
-    Ok(reader)
+    Ok(decoded)
 }
 
 #[cfg(test)]

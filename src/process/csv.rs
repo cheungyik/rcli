@@ -1,7 +1,7 @@
 use anyhow::Result;
 use serde_json::Value;
 
-use crate::cli::OutputFormat;
+use crate::OutputFormat;
 
 pub fn process_csv(input: &str, output: &str, format: OutputFormat) -> Result<()> {
     let mut reader = csv::Reader::from_path(input)?;
