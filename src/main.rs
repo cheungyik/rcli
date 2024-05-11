@@ -1,15 +1,25 @@
-use std::fs;
-
-use anyhow::{Ok, Result};
+use anyhow::Result;
 use clap::Parser;
+use dotenvy::dotenv;
 use rcli::{
     process_csv, process_decode, process_encode, process_generate, process_genpass,
-    process_text_sign, process_text_verify, Base64SubCommand, Opts, SubCommand, TextSignFormat,
-    TextSubCommand,
+    process_http_serve, process_text_sign, process_text_verify, Base64SubCommand, HttpSubCommand,
+    Opts, SubCommand, TextSignFormat, TextSubCommand,
 };
+use std::fs;
 use zxcvbn::zxcvbn;
 
-fn main() -> Result<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
+    dotenv().ok();
+
+    let timer = time::format_description::parse(
+        "[year]-[month padding:zero]-[day padding:zero]T[hour]:[minute]:[second].[subsecond digits:6][offset_hour sign:mandatory]:[offset_minute]",
+    )?;
+    let time_offset = time::UtcOffset::current_local_offset().unwrap_or(time::UtcOffset::UTC);
+    let timer = tracing_subscriber::fmt::time::OffsetTime::new(time_offset, timer);
+    tracing_subscriber::fmt().with_timer(timer).init();
+
     let opts = Opts::parse();
     match opts.cmd {
         SubCommand::Csv(opts) => {
@@ -61,6 +71,11 @@ fn main() -> Result<()> {
                         fs::write(name.join("ed25519.pk"), &keys[1])?;
                     }
                 }
+            }
+        },
+        SubCommand::Http(subcmd) => match subcmd {
+            HttpSubCommand::Serve(opts) => {
+                process_http_serve(opts.dir, opts.port).await?;
             }
         },
     }

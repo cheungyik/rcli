@@ -1,6 +1,7 @@
 mod b64;
 mod csv;
 mod genpass;
+mod http;
 mod text;
 
 use anyhow::Result;
@@ -10,6 +11,7 @@ use std::path::{Path, PathBuf};
 pub use self::{
     b64::{Base64Format, Base64SubCommand},
     csv::OutputFormat,
+    http::HttpSubCommand,
     text::{TextSignFormat, TextSubCommand},
 };
 use self::{csv::CsvOpts, genpass::GenPassOpts};
@@ -28,15 +30,14 @@ pub enum SubCommand {
         about = "Show CSV, or Convert CSV to ohre formats(Json, Yaml)"
     )]
     Csv(CsvOpts),
-
     #[command(name = "genpass", about = "Generate a random password")]
     GenPass(GenPassOpts),
-
     #[command(subcommand)]
     Base64(Base64SubCommand),
-
     #[command(subcommand)]
     Text(TextSubCommand),
+    #[command(subcommand)]
+    Http(HttpSubCommand),
 }
 
 fn verify_file(filename: &str) -> Result<String> {
