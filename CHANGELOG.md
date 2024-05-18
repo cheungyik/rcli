@@ -1,4 +1,16 @@
 ---
+## [0.1.5](https://github.com/hachimi-lab/rcli/compare/v0.1.4..v0.1.5) - 2024-05-18
+
+### Other
+
+- Update CHANGELOG.md - ([478a954](https://github.com/hachimi-lab/rcli/commit/478a95484fc0320862a807c8eeac0c99b887fddb)) - 蜂蜜実験室
+- Merge branch 'main' of github.com:hachimi-lab/rcli - ([fced6e3](https://github.com/hachimi-lab/rcli/commit/fced6e3095c49dba60e6bbc9e616e1bd7a951169)) - kaka
+
+### Refactoring
+
+- enum_dispatch - ([7431e26](https://github.com/hachimi-lab/rcli/commit/7431e2662350b70a5057c9b7ccd857201591be04)) - kaka
+
+---
 ## [0.1.4](https://github.com/hachimi-lab/rcli/compare/v0.1.3..v0.1.4) - 2024-05-17
 
 ### Features
