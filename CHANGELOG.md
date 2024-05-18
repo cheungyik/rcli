@@ -1,4 +1,16 @@
 ---
+## [0.1.4](https://github.com/hachimi-lab/rcli/compare/v0.1.3..v0.1.4) - 2024-05-17
+
+### Features
+
+- support http static file server - ([3d8ab1b](https://github.com/hachimi-lab/rcli/commit/3d8ab1bdbc2045168a64e73630d760fdbbe770ec)) - kaka
+- add tower-http support - ([cbc3803](https://github.com/hachimi-lab/rcli/commit/cbc3803b8ed491b2002d4d1953bfbda6dc974357)) - kaka
+
+### Other
+
+- Update CHANGELOG.md - ([00fd4a7](https://github.com/hachimi-lab/rcli/commit/00fd4a7c3803352318d1d87b5fcccf416090957b)) - 蜂蜜実験室
+
+---
 ## [0.1.3](https://github.com/hachimi-lab/rcli/compare/v0.1.2..v0.1.3) - 2024-05-11
 
 ### Features
