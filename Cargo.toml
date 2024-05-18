@@ -36,3 +36,4 @@ tracing-subscriber = { version = "0.3.17", features = [
     "chrono",
 ] }
 zxcvbn = "2.2.2"
+enum_dispatch = "0.3.13"

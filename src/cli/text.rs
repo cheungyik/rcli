@@ -1,10 +1,14 @@
-use anyhow::Error;
+use anyhow::{Error, Ok};
 use clap::Parser;
-use std::{fmt, path::PathBuf, str::FromStr};
+use enum_dispatch::enum_dispatch;
+use std::{fmt, fs, path::PathBuf, str::FromStr};
+
+use crate::CmdExecutor;
 
 use super::{verify_file, verify_path};
 
 #[derive(Debug, Parser)]
+#[enum_dispatch(CmdExecutor)]
 pub enum TextSubCommand {
     #[command(name = "sign", about = "Sign a message with a private/shared key")]
     Sign(TextSignOpts),
@@ -24,6 +28,14 @@ pub struct TextSignOpts {
     pub format: TextSignFormat,
 }
 
+impl CmdExecutor for TextSignOpts {
+    async fn execute(self) -> anyhow::Result<()> {
+        let signed = crate::process_text_sign(&self.input, &self.key, self.format)?;
+        println!("{}", signed);
+        Ok(())
+    }
+}
+
 #[derive(Debug, Parser)]
 pub struct TextVerifyOpts {
     #[arg(short, long, value_parser = verify_file, default_value = "-")]
@@ -36,12 +48,39 @@ pub struct TextVerifyOpts {
     pub sig: String,
 }
 
+impl CmdExecutor for TextVerifyOpts {
+    async fn execute(self) -> anyhow::Result<()> {
+        let verified = crate::process_text_verify(&self.input, &self.key, self.format, &self.sig)?;
+        println!("{}", verified);
+        Ok(())
+    }
+}
+
 #[derive(Debug, Parser)]
 pub struct TextKeyGenerateOpts {
     #[arg(short, long, default_value = "blake3", value_parser = parse_format)]
     pub format: TextSignFormat,
     #[arg(short, long, value_parser = verify_path)]
     pub output: PathBuf,
+}
+
+impl CmdExecutor for TextKeyGenerateOpts {
+    async fn execute(self) -> anyhow::Result<()> {
+        let keys = crate::process_generate(self.format)?;
+        match self.format {
+            TextSignFormat::Blake3 => {
+                let name = &self.output.join("blake3.txt");
+                fs::write(name, &keys[0])?;
+                Ok(())
+            }
+            TextSignFormat::Ed25519 => {
+                let name = &self.output;
+                fs::write(name.join("ed25519.sk"), &keys[0])?;
+                fs::write(name.join("ed25519.pk"), &keys[1])?;
+                Ok(())
+            }
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
